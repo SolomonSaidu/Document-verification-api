@@ -11,3 +11,49 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  passwordHash      String
+  apiKeys       ApiKey[]
+  verifications Verification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  keyHash   String   @unique
+  name      String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+  revokedAt DateTime?
+}
+
+model Verification {
+  id            Int                @id @default(autoincrement())
+  reference     String?             @unique
+  documentType  String
+  documentUrl   String
+  status        VerificationStatus @default(PENDING)
+  reason        String?
+  extractedData Json?
+  confidence    Float?
+  createdAt     DateTime           @default(now())
+  completedAt   DateTime?
+
+  userId        Int
+  user          User               @relation(fields: [userId], references: [id])
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  INVALID_DOCUMENT
+  EXPIRED
+  PENDING_REVIEW
+}
