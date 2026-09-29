@@ -2,6 +2,7 @@ import express from "express";
 import Verification from "./routes/verification.route.js";
 import User from "./routes/user.route.js";
 // import "./services/ocr.service.js";
+import "./workers/verification.worker.js";
 
 const app = express();
 app.use(express.json());

@@ -44,11 +44,14 @@ const verify = async (verification_id) => {
   const verification_doc = await prisma.verification.findUnique({
     where: {
       id: verification_id,
+      status: "PENDING",
     },
   });
 
   if (!verification_doc)
-    throw new Error(`Verification with the id ${verification_id} not found`);
+    throw new Error(
+      `Verification with the id ${verification_id} not found or already processed.`,
+    );
 
   const gemini_result = await geminiService.analyzeDocument(
     verification_doc.documentUrl,
