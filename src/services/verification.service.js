@@ -27,16 +27,25 @@ const createVerification = async (body, user_id) => {
 
 // Check whether the document was issued within the last three months.
 const isWithinThreeMonths = (issueDate) => {
-  const date = new Date(issueDate);
+  if (issueDate === null) return null;
 
-  if (Number.isNaN(date.getTime())) {
-    return false;
+  const [day, month, year] = issueDate.split("-");
+
+  const date = new Date(year, month - 1, day);
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getDate() !== Number(day) ||
+    date.getMonth() !== Number(month) - 1 ||
+    date.getFullYear() !== Number(year)
+  ) {
+    return null;
   }
 
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const cutoffDate = new Date();
+  cutoffDate.setMonth(cutoffDate.getMonth() - 3);
 
-  return date >= threeMonthsAgo;
+  return date > cutoffDate;
 };
 
 // Analyze a verification document and update its status based on the result.
@@ -77,7 +86,24 @@ const verify = async (verification_id) => {
   }
 
   // Reject the document when its issue date is invalid or older than three months.
-  if (!isWithinThreeMonths(result.issueDate)) {
+  const checkMonth = isWithinThreeMonths(result.issueDate);
+  if (checkMonth === null) {
+    const doc = await prisma.verification.update({
+      where: {
+        id: verification_id,
+      },
+      data: {
+        status: "PENDING_REVIEW",
+        reason: "Your document is under review.",
+        extractedData: result,
+      },
+    });
+    return {
+      success: false,
+      message: "Your document is under review.",
+      verification: doc,
+    };
+  } else if (checkMonth === false) {
     const doc = await prisma.verification.update({
       where: {
         id: verification_id,
@@ -102,6 +128,7 @@ const verify = async (verification_id) => {
     data: {
       status: "VERIFIED",
       reason: "You have been verified successfully.",
+      extractedData: result,
     },
   });
 
