@@ -137,16 +137,21 @@ const verify = async (verification_id) => {
     message: "You have been verified successfully.",
     verification: doc,
   };
-
-  //check if the docType match and also check if the date is grater than three months
-  //return the specific error eg INVALID_DOCMENT, UNKNOWN_DOCUMENT
-
-  //if all is well then save to the verificcation table, and update status to "success"
-
-  //get doc context using the crm tool
-  //then send the context to gemini api to return the res in json then we covert to json
-  //gemini response inclueds: {success:true, status:"SUCCESS"}, {success:fales, status:"OUTDATED_DOC"}, {success:fales, status:"INVALID_DOCUMENT"}, {success:false, status:"PENDING_REVIEW"}
-  //then we check each status here then return either error or success.
 };
 
-export default { createVerification, getAllVerification, verify };
+const getVerificationById = async (verification_id) => {
+  const verification_doc = await prisma.verification.findUnique({
+    where: {
+      id: verification_id,
+    },
+  });
+
+  return verification_doc;
+};
+
+export default {
+  createVerification,
+  getAllVerification,
+  verify,
+  getVerificationById,
+};

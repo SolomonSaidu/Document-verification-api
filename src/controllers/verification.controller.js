@@ -1,6 +1,5 @@
 import verificationService from "../services/verification.service.js";
 import { verificationQueue } from "../queue/verification.queue.js";
-import { success } from "zod";
 
 const getAllVerification = async (req, res) => {
   const result = await verificationService.getAllVerification();
@@ -42,4 +41,22 @@ const testVerify = async (req, res) => {
   }
 };
 
-export { getAllVerification, createVerification, testVerify };
+const getVerificationStatus = async (req, res) => {
+  const { verification_id } = req.body;
+
+  const result = await verificationService.getVerificationById(verification_id);
+
+  res.status(200).json({
+    id: result.id,
+    status: result.status,
+    message: result.reason,
+    document_type: result.documentType,
+  });
+};
+
+export {
+  getAllVerification,
+  createVerification,
+  testVerify,
+  getVerificationStatus,
+};
