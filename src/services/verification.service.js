@@ -1,6 +1,41 @@
 import prisma from "../config/prisma.js";
 import geminiService from "./gemini.service.js";
 
+// Check whether the document was issued within the last three months.
+const isWithinThreeMonths = (issueDate) => {
+  if (!issueDate) return null;
+
+  const [day, month, year] = issueDate.split("-");
+
+  const date = new Date(year, month - 1, day);
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getDate() !== Number(day) ||
+    date.getMonth() !== Number(month) - 1 ||
+    date.getFullYear() !== Number(year)
+  ) {
+    return null;
+  }
+
+  const cutoffDate = new Date();
+  cutoffDate.setMonth(cutoffDate.getMonth() - 3);
+
+  return date > cutoffDate;
+};
+
+//Update verification
+const updateVerification = async (id, data) => {
+  const result = await prisma.verification.update({
+    where: {
+      id,
+    },
+    data,
+  });
+
+  return result;
+};
+
 // Retrieve all verification records belonging to a user.
 const getAllVerification = async (user_id) => {
   const verification = await prisma.verification.findMany({
@@ -25,29 +60,6 @@ const createVerification = async (body, user_id) => {
   return verification;
 };
 
-// Check whether the document was issued within the last three months.
-const isWithinThreeMonths = (issueDate) => {
-  if (issueDate === null) return null;
-
-  const [day, month, year] = issueDate.split("-");
-
-  const date = new Date(year, month - 1, day);
-
-  if (
-    Number.isNaN(date.getTime()) ||
-    date.getDate() !== Number(day) ||
-    date.getMonth() !== Number(month) - 1 ||
-    date.getFullYear() !== Number(year)
-  ) {
-    return null;
-  }
-
-  const cutoffDate = new Date();
-  cutoffDate.setMonth(cutoffDate.getMonth() - 3);
-
-  return date > cutoffDate;
-};
-
 // Analyze a verification document and update its status based on the result.
 const verify = async (verification_id) => {
   const verification_doc = await prisma.verification.findUnique({
@@ -67,19 +79,19 @@ const verify = async (verification_id) => {
   );
 
   // Convert the Gemini response from JSON text into an object.
-  const result = JSON.parse(gemini_result);
-  console.log(result);
+  let result;
+  try {
+    result = JSON.parse(gemini_result);
+    console.log(result);
+  } catch (error) {
+    throw new Error("Failed to process gemini response.");
+  }
 
   // Reject the document when its detected type does not match the requested type.
   if (result.documentType !== verification_doc.documentType) {
-    const doc = await prisma.verification.update({
-      where: {
-        id: verification_id,
-      },
-      data: {
-        status: "INVALID_DOCUMENT",
-        reason: "Invalid document",
-      },
+    const doc = await updateVerification(verification_id, {
+      status: "INVALID_DOCUMENT",
+      reason: "Invalid document",
     });
 
     return { success: false, message: "Invalid document", verification: doc };
@@ -88,31 +100,23 @@ const verify = async (verification_id) => {
   // Reject the document when its issue date is invalid or older than three months.
   const checkMonth = isWithinThreeMonths(result.issueDate);
   if (checkMonth === null) {
-    const doc = await prisma.verification.update({
-      where: {
-        id: verification_id,
-      },
-      data: {
-        status: "PENDING_REVIEW",
-        reason: "Your document is under review.",
-        extractedData: result,
-      },
+    const doc = await updateVerification(verification_id, {
+      status: "PENDING_REVIEW",
+      reason: "Your document is under review.",
+      extractedData: result,
     });
+
     return {
       success: false,
       message: "Your document is under review.",
       verification: doc,
     };
   } else if (checkMonth === false) {
-    const doc = await prisma.verification.update({
-      where: {
-        id: verification_id,
-      },
-      data: {
-        status: "EXPIRED",
-        reason: "The document provided has expired.",
-      },
+    const doc = await updateVerification(verification_id, {
+      status: "EXPIRED",
+      reason: "The document provided has expired.",
     });
+
     return {
       success: false,
       message: "The document provided has expired.",
@@ -121,15 +125,10 @@ const verify = async (verification_id) => {
   }
 
   // Mark the document as verified when all checks pass.
-  const doc = await prisma.verification.update({
-    where: {
-      id: verification_id,
-    },
-    data: {
-      status: "VERIFIED",
-      reason: "You have been verified successfully.",
-      extractedData: result,
-    },
+  const doc = await updateVerification(verification_id, {
+    status: "VERIFIED",
+    reason: "You have been verified successfully.",
+    extractedData: result,
   });
 
   return {
