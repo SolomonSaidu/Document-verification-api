@@ -140,6 +140,8 @@ const verify = async (verification_id) => {
 };
 
 const getVerificationById = async (verification_id) => {
+  if (isNaN(verification_id)) throw new Error("Invalid verification id");
+
   const verification_doc = await prisma.verification.findUnique({
     where: {
       id: verification_id,

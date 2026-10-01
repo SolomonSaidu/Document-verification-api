@@ -1,9 +1,11 @@
-import { success } from "zod";
 import prisma from "../config/prisma.js";
 import apiService from "../services/api.service.js";
 
 const verifyApikey = async (req, res, next) => {
   const api_key = req.headers["x-api-key"];
+
+  if (!api_key)
+    res.status(403).json({ success: false, message: "Api-key needed." });
 
   const hashed_key = apiService.hashApiKey(api_key);
 
@@ -19,6 +21,10 @@ const verifyApikey = async (req, res, next) => {
       message: "Invalid Api key",
     });
   }
+
+  req.user_id = get_key.userId;
+
+  next();
 };
 
 //continue here

@@ -10,7 +10,7 @@ const getAllVerification = async (req, res) => {
 const createVerification = async (req, res) => {
   const result = await verificationService.createVerification(
     req.body,
-    req.user.id,
+    req.user_id,
   );
 
   await verificationQueue.add("verification", {
@@ -42,16 +42,21 @@ const testVerify = async (req, res) => {
 };
 
 const getVerificationStatus = async (req, res) => {
-  const { verification_id } = req.body;
+  try {
+    const { verification_id } = req.body;
 
-  const result = await verificationService.getVerificationById(verification_id);
+    const result =
+      await verificationService.getVerificationById(verification_id);
 
-  res.status(200).json({
-    id: result.id,
-    status: result.status,
-    message: result.reason,
-    document_type: result.documentType,
-  });
+    res.status(200).json({
+      id: result.id,
+      status: result.status,
+      message: result.reason,
+      document_type: result.documentType,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 export {

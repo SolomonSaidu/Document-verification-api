@@ -6,15 +6,16 @@ import {
   getVerificationStatus,
 } from "../controllers/verification.controller.js";
 import authenticate from "../middlewares/auth.middleware.js";
+import verifyApikey from "../middlewares/api.middleware.js";
 
 const route = express.Router();
 
 route.get("/verification", authenticate, getAllVerification);
 
-route.post("/verification", authenticate, createVerification);
+route.post("/verification", verifyApikey, createVerification);
 
 route.post("/verification/test/:id", testVerify);
 
-route.post("/verification/status", getVerificationStatus);
+route.post("/verification/status", verifyApikey, getVerificationStatus);
 
 export default route;
