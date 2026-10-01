@@ -24,23 +24,6 @@ const createVerification = async (req, res) => {
   });
 };
 
-const testVerify = async (req, res) => {
-  const id = req.params.id;
-  const verification_id = parseInt(id);
-
-  try {
-    const result = await verificationService.verify(verification_id);
-
-    res.status(200).json(result);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 const getVerificationStatus = async (req, res) => {
   try {
     const { verification_id } = req.body;
@@ -59,9 +42,4 @@ const getVerificationStatus = async (req, res) => {
   }
 };
 
-export {
-  getAllVerification,
-  createVerification,
-  testVerify,
-  getVerificationStatus,
-};
+export { getAllVerification, createVerification, getVerificationStatus };

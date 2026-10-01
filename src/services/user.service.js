@@ -1,4 +1,3 @@
-import { email } from "zod";
 import prisma from "../config/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
