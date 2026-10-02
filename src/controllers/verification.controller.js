@@ -11,6 +11,7 @@ const createVerification = async (req, res) => {
   const result = await verificationService.createVerification(
     req.body,
     req.user_id,
+    req.file,
   );
 
   await verificationQueue.add("verification", {

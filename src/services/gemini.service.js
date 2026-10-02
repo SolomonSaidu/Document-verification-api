@@ -4,11 +4,7 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-const analyzeDocument = async (filePath) => {
-  const file = await ai.files.upload({
-    file: filePath,
-  });
-
+const analyzeDocument = async (buffer, mimeType) => {
   const response = await ai.models.generateContent({
     model: "gemini-3.1-flash-lite",
 
@@ -25,9 +21,9 @@ const analyzeDocument = async (filePath) => {
       `,
       },
       {
-        fileData: {
-          fileUri: file.uri,
-          mimeType: file.mimeType,
+        inlineData: {
+          mimeType,
+          data: buffer.toString("base64"),
         },
       },
     ],

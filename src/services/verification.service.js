@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.js";
 import geminiService from "./gemini.service.js";
+import storageService from "./storage.service.js";
 
 // Check whether the document was issued within the last three months.
 const isWithinThreeMonths = (issueDate) => {
@@ -48,12 +49,16 @@ const getAllVerification = async (user_id) => {
 };
 
 // Create a verification record using the submitted document details.
-const createVerification = async (body, user_id) => {
+const createVerification = async (body, user_id, file) => {
+  if (!file) throw new Error("Docuement is required.");
+
+  const document_url = await storageService.uploadDocument(file);
+
   const verification = await prisma.verification.create({
     data: {
       userId: user_id,
       documentType: body.document_type,
-      documentUrl: body.document_url,
+      documentUrl: document_url,
     },
   });
 
@@ -74,9 +79,11 @@ const verify = async (verification_id) => {
       `Verification with the id ${verification_id} not found or already processed.`,
     );
 
-  const gemini_result = await geminiService.analyzeDocument(
+  const { buffer, mimeType } = await storageService.downloadDocument(
     verification_doc.documentUrl,
   );
+
+  const gemini_result = await geminiService.analyzeDocument(buffer, mimeType);
 
   // Convert the Gemini response from JSON text into an object.
   let result;
