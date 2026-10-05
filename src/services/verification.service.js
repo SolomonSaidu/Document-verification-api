@@ -52,6 +52,12 @@ const getAllVerification = async (user_id) => {
 const createVerification = async (body, user_id, file) => {
   if (!file) throw new Error("Docuement is required.");
 
+  const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    throw new Error("Unsupported document format.");
+  }
+
   const document_url = await storageService.uploadDocument(file);
 
   const verification = await prisma.verification.create({

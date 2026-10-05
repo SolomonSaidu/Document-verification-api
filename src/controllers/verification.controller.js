@@ -2,7 +2,8 @@ import verificationService from "../services/verification.service.js";
 import { verificationQueue } from "../queue/verification.queue.js";
 
 const getAllVerification = async (req, res) => {
-  const result = await verificationService.getAllVerification();
+  const user_id = req.user.id;
+  const result = await verificationService.getAllVerification(user_id);
 
   res.status(200).json({ success: true, result });
 };
