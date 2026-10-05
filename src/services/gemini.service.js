@@ -14,7 +14,7 @@ const analyzeDocument = async (buffer, mimeType) => {
         Analyze this electricity bill.
 
         Extract only information that is actually visible/readable
-        in the document.
+        in the document. The date format should be: 25-10-2026 i.e date-month-year.
 
         Do NOT guess or infer missing information.
         Return null for any field that cannot be found or reliably read.

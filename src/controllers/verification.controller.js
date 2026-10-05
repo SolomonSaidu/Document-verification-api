@@ -15,9 +15,11 @@ const createVerification = async (req, res) => {
     req.file,
   );
 
+  console.time("redis");
   await verificationQueue.add("verification", {
     verification_id: result.id,
   });
+  console.timeEnd("redis");
 
   res.status(201).json({
     success: true,
