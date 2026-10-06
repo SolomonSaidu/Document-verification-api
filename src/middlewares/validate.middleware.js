@@ -3,7 +3,7 @@ const Validate = (schema) => {
     const value = schema.safeParse(req.body);
 
     if (!value.success) {
-      res.status(403).json({
+      res.status(400).json({
         success: false,
         message: "Invalid Details...",
         error: value.error.issues.map((err) => err.message),

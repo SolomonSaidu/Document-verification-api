@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     if (error.message == "USER_EXIST") {
-      res.status(400).json({ success: true, message: "User already exist." });
+      res.status(409).json({ success: false, message: "User already exist." });
     }
 
     throw error;
