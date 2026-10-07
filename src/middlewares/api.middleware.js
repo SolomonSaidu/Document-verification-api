@@ -6,7 +6,7 @@ const verifyApikey = async (req, res, next) => {
   const key = req.headers["x-api-key"];
 
   if (!key)
-    res.status(403).json({ success: false, message: "Api-key is missing." });
+    res.status(401).json({ success: false, message: "Api-key is missing." });
 
   const result = apiKeySchema.safeParse(key);
   if (!result.success) {

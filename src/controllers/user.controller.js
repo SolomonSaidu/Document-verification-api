@@ -30,7 +30,7 @@ const loginUser = async (req, res) => {
     });
   } catch (error) {
     if (error.message == "INVALID_CREDENTIALS") {
-      res.status(401).json({
+      res.status(400).json({
         success: false,
         message: "Invalid email or password",
       });

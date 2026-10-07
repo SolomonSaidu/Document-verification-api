@@ -1,5 +1,6 @@
 import verificationService from "../services/verification.service.js";
 import { verificationQueue } from "../queue/verification.queue.js";
+import { file } from "zod";
 
 const getAllVerification = async (req, res) => {
   const user_id = req.user.id;
@@ -14,6 +15,8 @@ const createVerification = async (req, res) => {
     req.user_id,
     req.file,
   );
+  console.log("File", req.file);
+  console.log("Body", req.body);
 
   console.time("redis");
   await verificationQueue.add("verification", {
