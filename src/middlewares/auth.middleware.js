@@ -19,7 +19,7 @@ const authenticate = (req, res, next) => {
     next();
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({
+    res.status(401).json({
       success: false,
       message: "Error while authenticating.",
     });
