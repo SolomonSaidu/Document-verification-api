@@ -3,7 +3,7 @@ import geminiService from "./gemini.service.js";
 import storageService from "./storage.service.js";
 
 // Check whether the document was issued within the last three months.
-const isWithinThreeMonths = (issueDate) => {
+const isWithinThreeMonths = (issueDate, referenceDate = new Date()) => {
   if (!issueDate) return null;
 
   const [day, month, year] = issueDate.split("-");
@@ -19,10 +19,14 @@ const isWithinThreeMonths = (issueDate) => {
     return null;
   }
 
-  const cutoffDate = new Date();
+  if (date > referenceDate) {
+    return null;
+  }
+
+  const cutoffDate = new Date(referenceDate);
   cutoffDate.setMonth(cutoffDate.getMonth() - 3);
 
-  return date > cutoffDate;
+  return date >= cutoffDate;
 };
 
 //Update verification
