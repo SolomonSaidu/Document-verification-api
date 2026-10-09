@@ -1,25 +1,12 @@
 import request from "supertest";
 import { describe, it, expect } from "vitest";
 import app from "../index.js";
+import apiKeyHelper from "./helper/api-key.helper.js";
 
 // Create verification
 describe("POST /api/v1/verification", () => {
   it("should create verification", async () => {
-    const userResponse = await request(app).post("/api/v1/user/login").send({
-      email: "example@gmail.com",
-      password: "mypass",
-    });
-
-    const token = userResponse.body.token;
-
-    const apiKeyResponse = await request(app)
-      .post("/api/v1/api-key")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        api_name: "first test api",
-      });
-
-    const api_key = apiKeyResponse.body.api_key;
+    const api_key = await apiKeyHelper.getApiKey();
 
     const response = await request(app)
       .post("/api/v1/verification")
@@ -48,21 +35,7 @@ describe("POST /api/v1/verification", () => {
   });
 
   it("should reject missing document type", async () => {
-    const userResponse = await request(app).post("/api/v1/user/login").send({
-      email: "example@gmail.com",
-      password: "mypass",
-    });
-
-    const token = userResponse.body.token;
-
-    const apiKeyResponse = await request(app)
-      .post("/api/v1/api-key")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        api_name: "first test api",
-      });
-
-    const api_key = apiKeyResponse.body.api_key;
+    const api_key = apiKeyHelper.getApiKey();
 
     const response = await request(app)
       .post("/api/v1/verification")

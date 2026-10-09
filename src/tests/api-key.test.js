@@ -1,15 +1,11 @@
 import request from "supertest";
 import { describe, it, expect } from "vitest";
 import app from "../index.js";
+import userHelper from "./helper/user.helper.js";
 
 describe("POST /api/v1/api-key", () => {
   it("should create an api-key", async () => {
-    const userResponse = await request(app).post("/api/v1/user/login").send({
-      email: "example@gmail.com",
-      password: "mypass",
-    });
-
-    const token = userResponse.body.token;
+    const token = await userHelper.getUserToken();
 
     const response = await request(app)
       .post("/api/v1/api-key")
@@ -45,12 +41,7 @@ describe("POST /api/v1/api-key", () => {
   });
 
   it("should reject missing api-key name", async () => {
-    const userResponse = await request(app).post("/api/v1/user/login").send({
-      email: "example@gmail.com",
-      password: "mypass",
-    });
-
-    const token = userResponse.body.token;
+    const token = await userHelper.getUserToken();
 
     const response = await request(app)
       .post("/api/v1/api-key")
@@ -64,12 +55,7 @@ describe("POST /api/v1/api-key", () => {
   });
 
   it("should reject invalid api-key name", async () => {
-    const userResponse = await request(app).post("/api/v1/user/login").send({
-      email: "example@gmail.com",
-      password: "mypass",
-    });
-
-    const token = userResponse.body.token;
+    const token = await userHelper.getUserToken();
 
     const response = await request(app)
       .post("/api/v1/api-key")
