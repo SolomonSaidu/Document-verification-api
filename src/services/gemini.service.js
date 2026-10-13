@@ -1,15 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 
+// Initialize the Gemini client using the API key from environment variables.
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+// Analyze a document buffer and extract only the readable fields from the bill.
 const analyzeDocument = async (buffer, mimeType) => {
+  // Send the bill image and extraction instructions to the AI model.
   const response = await ai.models.generateContent({
     model: "gemini-3.1-flash-lite",
 
     contents: [
       {
+        // Instruction prompt for the model to read the document and return structured JSON.
         text: `
         Analyze this electricity bill.
 
@@ -21,6 +25,7 @@ const analyzeDocument = async (buffer, mimeType) => {
       `,
       },
       {
+        // Include the uploaded document content as base64-encoded inline data.
         inlineData: {
           mimeType,
           data: buffer.toString("base64"),
@@ -31,6 +36,7 @@ const analyzeDocument = async (buffer, mimeType) => {
     config: {
       responseMimeType: "application/json",
 
+      // Define the expected JSON schema for the extracted document data.
       responseSchema: {
         type: "object",
         properties: {
@@ -93,7 +99,9 @@ const analyzeDocument = async (buffer, mimeType) => {
     },
   });
 
+  // Return the model response as raw text.
   return response.text;
 };
 
+// Export the document analysis function for use elsewhere in the app.
 export default { analyzeDocument };
