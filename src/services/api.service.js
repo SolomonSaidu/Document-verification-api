@@ -1,16 +1,19 @@
 import prisma from "../config/prisma.js";
 import crypto from "crypto";
 
+// Generate a unique API key string.
 const generateApiKey = () => {
   const secret = crypto.randomBytes(32).toString("hex");
 
   return `dva_live_${secret}`;
 };
 
+// Hash the API key before storing it.
 const hashApiKey = (api_key) => {
   return crypto.createHash("sha256").update(api_key).digest("hex");
 };
 
+// Create a new API record and return the generated key.
 const createApi = async (api_name, user_id) => {
   const generated_key = generateApiKey();
   const hashed_key = hashApiKey(generated_key);
