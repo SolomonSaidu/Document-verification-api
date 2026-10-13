@@ -1,6 +1,6 @@
 import verificationService from "../services/verification.service.js";
 import { verificationQueue } from "../queue/verification.queue.js";
-import { file } from "zod";
+import { file, success } from "zod";
 
 const getAllVerification = async (req, res) => {
   const user_id = req.user.id;
@@ -35,8 +35,10 @@ const getVerificationStatus = async (req, res) => {
   try {
     const { verification_id } = req.body;
 
-    const result =
-      await verificationService.getVerificationById(verification_id);
+    const result = await verificationService.getVerificationById(
+      verification_id,
+      req.user_id,
+    );
 
     res.status(200).json({
       id: result.id,
@@ -45,6 +47,11 @@ const getVerificationStatus = async (req, res) => {
       document_type: result.documentType,
     });
   } catch (error) {
+    if (error.message == "NOT_FOUND") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Verification not found." });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };
