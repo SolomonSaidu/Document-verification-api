@@ -38,7 +38,7 @@ describe("verify", () => {
     );
   });
 
-  it("should verify document successfuly", async () => {
+  it("should reject invalid document", async () => {
     prisma.verification.findUnique.mockResolvedValue({
       id: 123,
       status: "PENDING",
@@ -69,6 +69,111 @@ describe("verify", () => {
     expect(response.success).toBe(false);
     expect(response.message).toBe("Invalid document");
     expect(response.verification.status).toBe("INVALID_DOCUMENT");
+
+    expect(prisma.verification.update).toHaveBeenCalled();
+  });
+
+  it("should verify the document", async () => {
+    prisma.verification.findUnique.mockResolvedValue({
+      id: 123,
+      status: "PENDING",
+      documentType: "ELECTRICITY_BILL",
+      documentUrl: "fake-document-url",
+    });
+
+    storageService.downloadDocument.mockResolvedValue({
+      buffer: Buffer.from("fake document"),
+      mimeType: "image/jpeg",
+    });
+
+    geminiService.analyzeDocument.mockResolvedValue(
+      JSON.stringify({
+        documentType: "ELECTRICITY_BILL",
+        issueDate: "01-10-2026",
+      }),
+    );
+
+    prisma.verification.update.mockResolvedValue({
+      id: 123,
+      status: "VERIFIED",
+      reason: "You have been verified successfully.",
+    });
+
+    const response = await verificationService.verify(123);
+
+    expect(response.success).toBe(true);
+    expect(response.message).toBe("You have been verified successfully.");
+    expect(response.verification.status).toBe("VERIFIED");
+
+    expect(prisma.verification.update).toHaveBeenCalled();
+  });
+
+  it("should reject expired verifications", async () => {
+    prisma.verification.findUnique.mockResolvedValue({
+      id: 123,
+      status: "PENDING",
+      documentType: "ELECTRICITY_BILL",
+      documentUrl: "fake-document-url",
+    });
+
+    storageService.downloadDocument.mockResolvedValue({
+      buffer: Buffer.from("fake document"),
+      mimeType: "image/jpeg",
+    });
+
+    geminiService.analyzeDocument.mockResolvedValue(
+      JSON.stringify({
+        documentType: "ELECTRICITY_BILL",
+        issueDate: "01-05-2026",
+      }),
+    );
+
+    prisma.verification.update.mockResolvedValue({
+      id: 123,
+      status: "EXPIRED",
+      reason: "The document provided has expired.",
+    });
+
+    const response = await verificationService.verify(123);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The document provided has expired.");
+    expect(response.verification.status).toBe("EXPIRED");
+
+    expect(prisma.verification.update).toHaveBeenCalled();
+  });
+
+  it("should set to pending review for invalid date", async () => {
+    prisma.verification.findUnique.mockResolvedValue({
+      id: 123,
+      status: "PENDING",
+      documentType: "ELECTRICITY_BILL",
+      documentUrl: "fake-document-url",
+    });
+
+    storageService.downloadDocument.mockResolvedValue({
+      buffer: Buffer.from("fake document"),
+      mimeType: "image/jpeg",
+    });
+
+    geminiService.analyzeDocument.mockResolvedValue(
+      JSON.stringify({
+        documentType: "ELECTRICITY_BILL",
+        issueDate: "01-50-2026",
+      }),
+    );
+
+    prisma.verification.update.mockResolvedValue({
+      id: 123,
+      status: "PENDING_REVIEW",
+      reason: "Your document is under review.",
+    });
+
+    const response = await verificationService.verify(123);
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("Your document is under review.");
+    expect(response.verification.status).toBe("PENDING_REVIEW");
 
     expect(prisma.verification.update).toHaveBeenCalled();
   });
