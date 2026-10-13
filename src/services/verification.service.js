@@ -99,7 +99,6 @@ const verify = async (verification_id) => {
   let result;
   try {
     result = JSON.parse(gemini_result);
-    console.log(result);
   } catch (error) {
     throw new Error("Failed to process gemini response.");
   }
