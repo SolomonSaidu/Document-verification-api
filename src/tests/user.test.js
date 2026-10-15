@@ -6,7 +6,7 @@ import userHelper from "./helper/user.helper.js";
 // Register new user
 describe("POST /api/v1/user/register", () => {
   it("Create new user", async () => {
-    const response = await userHelper.createUser("exaple4@gmail.com", "mypass");
+    const response = await userHelper.createUser("exaple8@gmail.com", "mypass");
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
