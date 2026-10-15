@@ -255,17 +255,53 @@ npx vitest run
 
 ## Screenshots
 
+### Development Server
+
+![Development server](docs/images/fig-1.png)
+
+### User Registration
+
+![User registration](docs/images/fig-2.png)
+
+### User Login
+
+![User login](docs/images/fig-3.png)
+
+### API Key Creation
+
+![API key creation](docs/images/fig-4.png)
+
+### Verification Submission
+
+![Verification submission](docs/images/fig-5.png)
+
+### Server Processing Logs
+
+![Server processing logs](docs/images/fig-6.png)
+
+### Retrieve Verification Requests
+
+![Retrieve verification requests](docs/images/fig-7.png)
+
+### Verification Status
+
+![Verification status](docs/images/fig-8.png)
+
+### Automated Test Results
+
+![Automated test results](docs/images/fig-9.png)
+
 The following screenshot illustrates the local development setup.
 
-- `fig-1.png` — Development server
-- `fig-2.png` — User registration
-- `fig-3.png` — User login
-- `fig-4.png` — API key creation
-- `fig-5.png` — Verification submission
-- `fig-6.png` — Server processing logs
-- `fig-7.png` — Retrieve verification requests
-- `fig-8.png` — Verification status
-- `fig-9.png` — Automated test results
+    - `fig-1.png` — Development server
+    - `fig-2.png` — User registration
+    - `fig-3.png` — User login
+    - `fig-4.png` — API key creation
+    - `fig-5.png` — Verification submission
+    - `fig-6.png` — Server processing logs
+    - `fig-7.png` — Retrieve verification requests
+    - `fig-8.png` — Verification status
+    - `fig-9.png` — Automated test results
 
 ## Future Improvements
 
