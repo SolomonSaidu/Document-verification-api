@@ -35,7 +35,7 @@ describe("POST /api/v1/verification", () => {
   });
 
   it("should reject missing document type", async () => {
-    const api_key = apiKeyHelper.getApiKey();
+    const api_key = await apiKeyHelper.getApiKey();
 
     const response = await request(app)
       .post("/api/v1/verification")
